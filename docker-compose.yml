@@ -1,0 +1,32 @@
+services:
+  # Development: FastAPI backend + Vite dev server with hot reload.
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      # - ENERPILOT_OFFLINE=1   # force deterministic demo mode (no network)
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_TARGET=http://backend:8000
+    depends_on:
+      - backend
+
+  # Production-style single container (UI served by FastAPI on :8080):
+  #   docker compose --profile prod up enerpilot
+  enerpilot:
+    profiles: ["prod"]
+    build: .
+    ports:
+      - "8080:7860"

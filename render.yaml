@@ -1,0 +1,20 @@
+# Render Blueprint for the EnerPilot backend (FastAPI).
+# Render → New → Blueprint → pick this GitHub repo. The frontend is deployed separately on Vercel.
+services:
+  - type: web
+    name: enerpilot-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/ping
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      # the free instance has very little CPU: skip pre-computing all what-if
+      # combinations (each is computed on first use and then cached instead)
+      - key: ENERPILOT_WARM_CACHE
+        value: "0"
+      - key: ENERPILOT_HTTP_TIMEOUT
+        value: "30"
